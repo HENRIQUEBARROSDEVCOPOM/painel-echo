@@ -304,20 +304,28 @@
     // Novo botão Resetar
     const btnReset = document.getElementById('reset');
 
-    btnReset.addEventListener('click', () => {
-    // Limpa os campos de texto
-    document.querySelectorAll('input[type="text"]').forEach(inp => inp.value = '');
-  
-    // Desmarca todas as opções de sigla (se existirem)
-    document.querySelectorAll('#siglasBatalhao input[type="radio"]').forEach(radio => radio.checked = false);
+    btnReset.addEventListener('click', async () => {
+  // Limpa campos
+  document.querySelectorAll('input[type="text"]').forEach(inp => inp.value = '');
+  document.querySelectorAll('#siglasBatalhao input[type="radio"]').forEach(radio => radio.checked = false);
+  updateDisplay();
 
-    // Atualiza o display
-    updateDisplay();
+  // Efeito de flash
+  card.classList.add('flash');
+  setTimeout(() => card.classList.remove('flash'), 500);
 
-    // Aplica o efeito de flash no card
-    card.classList.add('flash');
-    setTimeout(() => card.classList.remove('flash'), 500);
-    });
+  // Envia atualização em branco para o banco
+  const { error } = await supabase
+    .from('ocorrencias')
+    .insert([{ batalhao: '', tipo: '', local: '' }]);
+
+  if (error) {
+    console.error('Erro ao limpar painel:', error);
+  } else {
+    console.log('Painel limpo para todos os dispositivos');
+  }
+});
+
 
     // Atualiza automaticamente ao digitar ou clicar nas opções
     [numBatalhao, tipo, localEl].forEach(inp => inp.addEventListener('input', updateDisplay));
@@ -375,7 +383,7 @@
 
   // 🔴 Sincronização em tempo real
   supabase
-  .channel('public:ocorrencias')  // nome do canal (pode ser qualquer string)
+  .channel('publicocorrencias')  // nome do canal (pode ser qualquer string)
   .on('postgres_changes', 
       { event: '*', schema: 'public', table: 'ocorrencias' },
       payload => {
