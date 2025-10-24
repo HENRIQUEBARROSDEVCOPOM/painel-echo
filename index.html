@@ -263,6 +263,24 @@
       if(status === 'red') card.classList.add('status-red','blink');
     }
 
+    async function carregarUltimaOcorrencia() {
+    const { data, error } = await supabase
+    .from('ocorrencias')
+    .select('*')
+    .order('id', { ascending: false })
+    .limit(1);
+
+    if (data && data.length > 0) {
+    const ultima = data[0];
+    dispB.textContent = ultima.batalhao.toUpperCase();
+    dispT.textContent = ultima.tipo.toUpperCase();
+    dispL.textContent = ultima.local.toUpperCase();
+    const status = computeStatus(ultima.tipo);
+    applyVisual(status);
+  }
+}
+
+
     function updateDisplay(){
       const num = numBatalhao.value.trim() || '00';
       const siglas = getSelectedSiglas() || ' OPM ';
@@ -309,24 +327,26 @@
 
     updateDisplay();
 
-  async function salvarOcorrencia() {
-  const num = numBatalhao.value.trim() || '00';
-  const sigla = getSelectedSiglas() || 'OPM';
-  const b = num + 'º ' + sigla // concatena o número com a sigla
-  const t = tipo.value.trim();
-  const l = localEl.value.trim();
+    async function salvarOcorrencia() {
+    const num = numBatalhao.value.trim() || '00';
+    const sigla = getSelectedSiglas() || 'OPM';
+    const b = num + 'º ' + sigla;  // combina número + sigla
+    const t = tipo.value.trim();
+    const l = localEl.value.trim();
 
-  const { data, error } = await supabase
+    const { data, error } = await supabase
     .from('ocorrencias')
-    .insert([{ batalhao: b, tipo: t, local: l }]);
+    .upsert(
+      { id: 1, batalhao: b, tipo: t, local: l }, // sempre atualiza o registro de id 1
+      { onConflict: 'id' } // importante: define que se o id já existir, deve atualizar
+    );
 
-  if (error) {
+    if (error) {
     console.error('Erro ao salvar:', error);
-  } else {
+    } else {
     console.log('Ocorrência salva com sucesso:', data);
+    }
   }
-}
-
 
     const btnSetaEsq = document.getElementById('btnSetaEsq');
     const btnSetaDir = document.getElementById('btnSetaDir');
@@ -354,8 +374,8 @@
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   // 🔴 Sincronização em tempo real
-supabase
-  .channel('public:ocorrencias')   // use este formato
+  supabase
+  .channel('ocorrencias')  // nome do canal (pode ser qualquer string)
   .on('postgres_changes', 
       { event: '*', schema: 'public', table: 'ocorrencias' },
       payload => {
@@ -370,6 +390,8 @@ supabase
       }
   )
   .subscribe();
+
+  carregarUltimaOcorrencia();
 
 </script>
 
