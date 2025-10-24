@@ -295,11 +295,16 @@
       applyVisual(status);
     }
 
-    btnUpdate.addEventListener('click', updateDisplay);
-    btnUpdate.addEventListener('click', () => {
-    updateDisplay();
-    salvarOcorrencia();
-    });
+    // btnUpdate.addEventListener('click', updateDisplay);
+    btnUpdate.addEventListener('click', async () => {
+  updateDisplay();
+  await salvarOcorrencia();
+
+  // 🔁 Garante que o visual (cor) também seja atualizado localmente
+  const status = computeStatus(tipo.value.trim());
+  applyVisual(status);
+});
+
 
     // Novo botão Resetar
     const btnReset = document.getElementById('reset');
