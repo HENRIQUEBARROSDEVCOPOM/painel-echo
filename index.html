@@ -375,7 +375,7 @@
 
   // 🔴 Sincronização em tempo real
   supabase
-  .channel('ocorrencias')  // nome do canal (pode ser qualquer string)
+  .channel('public:ocorrencias')  // nome do canal (pode ser qualquer string)
   .on('postgres_changes', 
       { event: '*', schema: 'public', table: 'ocorrencias' },
       payload => {
