@@ -183,23 +183,6 @@
 
 <body>
 
-<script>
-  const senhaCorreta = "EQUIPEECHO2025"; 
-  let senha = sessionStorage.getItem("autorizado");
-
-  if (!senha) {
-    senha = prompt("🔐 Digite a senha de acesso:");
-    if (senha !== senhaCorreta) {
-      alert("❌ Senha incorreta. Acesso negado!");
-      document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:20%;font-family:sans-serif;'>Acesso bloqueado.</h2>";
-      throw new Error("Acesso negado");
-    } else {
-      sessionStorage.setItem("autorizado", true);
-    }
-  }
-</script>
-
-  
 <div class="wrp">
     <div class="editor">
       <h1>Bloco de Notas — Editor</h1>
