@@ -308,23 +308,38 @@
   // Limpa campos
   document.querySelectorAll('input[type="text"]').forEach(inp => inp.value = '');
   document.querySelectorAll('#siglasBatalhao input[type="radio"]').forEach(radio => radio.checked = false);
-  updateDisplay();
 
-  // Efeito de flash
+  // Define os textos padrão
+  dispB.textContent = 'BATALHÃO';
+  dispT.textContent = 'TIPO DE OCORRÊNCIA';
+  dispL.textContent = 'LOCAL';
+
+  // Remove classes de cor e animação
+  card.classList.remove('status-green','status-yellow','status-red','pulse','blink');
+  
+  // Aplica um estilo neutro (pode deixar assim ou mudar a cor base)
+  card.style.background = 'linear-gradient(180deg,#071026,#0b1226)';
+
+  // Efeito visual de flash
   card.classList.add('flash');
   setTimeout(() => card.classList.remove('flash'), 500);
 
-  // Envia atualização em branco para o banco
+  // Envia atualização "padrão" para o banco
   const { error } = await supabase
     .from('ocorrencias')
-    .insert([{ batalhao: '', tipo: '', local: '' }]);
+    .insert([{
+      batalhao: 'BATALHÃO',
+      tipo: 'TIPO DE OCORRÊNCIA',
+      local: 'LOCAL'
+    }]);
 
   if (error) {
     console.error('Erro ao limpar painel:', error);
   } else {
-    console.log('Painel limpo para todos os dispositivos');
+    console.log('Painel redefinido para o padrão em todos os dispositivos');
   }
 });
+
 
 
     // Atualiza automaticamente ao digitar ou clicar nas opções
