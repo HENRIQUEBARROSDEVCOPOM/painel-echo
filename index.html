@@ -310,7 +310,9 @@
     updateDisplay();
 
   async function salvarOcorrencia() {
-  const b = batalhao.value.trim();
+  const num = numBatalhao.value.trim() || '00';
+  const sigla = getSelectedSiglas() || 'OPM';
+  const b = num + 'º ' + sigla // concatena o número com a sigla
   const t = tipo.value.trim();
   const l = localEl.value.trim();
 
@@ -353,22 +355,19 @@
 
   // 🔴 Sincronização em tempo real
 supabase
-  .channel('ocorrencias')
-  .on(
-    'postgres_changes',
-    { event: '*', schema: 'public', table: 'ocorrencias' },
-    payload => {
-      console.log('Mudança detectada:', payload);
-      // Aqui você pode atualizar automaticamente a tela com os novos dados
-      const nova = payload.new;
-      if (nova) {
-        dispB.textContent = nova.batalhao.toUpperCase();
-        dispT.textContent = nova.tipo.toUpperCase();
-        dispL.textContent = nova.local.toUpperCase();
-        const status = computeStatus(nova.tipo);
-        applyVisual(status);
+  .channel('public:ocorrencias')   // use este formato
+  .on('postgres_changes', 
+      { event: '*', schema: 'public', table: 'ocorrencias' },
+      payload => {
+        const nova = payload.new;
+        if (nova) {
+          dispB.textContent = nova.batalhao.toUpperCase();
+          dispT.textContent = nova.tipo.toUpperCase();
+          dispL.textContent = nova.local.toUpperCase();
+          const status = computeStatus(nova.tipo);
+          applyVisual(status);
+        }
       }
-    }
   )
   .subscribe();
 
