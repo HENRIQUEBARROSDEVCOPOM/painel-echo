@@ -182,44 +182,8 @@
 </head>
 
 <body>
-
-  <div id="loginContainer" style="...">
-    <h1 style="...">🔐 Acesso Restrito</h1>
-    <input type="password" id="senhaInput" placeholder="Digite a senha..." style="..." />
-    <button id="entrarBtn" style="...">Entrar</button>
-    <p id="erroMsg" style="...">Senha incorreta!</p>
-  </div>
-
-<script>
-  const senhaCorreta = "Echo2025@"; // 🔒 coloque sua senha
-  const loginContainer = document.getElementById("loginContainer");
-  const senhaInput = document.getElementById("senhaInput");
-  const entrarBtn = document.getElementById("entrarBtn");
-  const erroMsg = document.getElementById("erroMsg");
-
-  // Se já autorizado na sessão, esconde o login
-  if (sessionStorage.getItem("autorizado")) {
-    loginContainer.style.display = "none";
-  }
-
-  entrarBtn.addEventListener("click", verificarSenha);
-  senhaInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") verificarSenha();
-  });
-
-  function verificarSenha() {
-    if (senhaInput.value === senhaCorreta) {
-      sessionStorage.setItem("autorizado", true);
-      loginContainer.style.display = "none";
-    } else {
-      erroMsg.style.display = "block";
-      senhaInput.value = "";
-    }
-  }
-</script>
-
   
-  <div class="wrap">
+<div class="wrp">
     <div class="editor">
       <h1>Bloco de Notas — Editor</h1>
 
