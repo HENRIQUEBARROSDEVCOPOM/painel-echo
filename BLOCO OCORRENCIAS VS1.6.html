@@ -1,0 +1,378 @@
+-<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OCORRÊNCIAS - EQUIPE ECHO</title>
+  <style>
+
+    *{box-sizing:border-box;
+      margin:0;
+      padding:0;
+      font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
+
+    html,body{height:100%;
+      background:#0b1020;
+      color:white;
+      overflow:hidden}
+
+    .wrap{display:flex;
+        flex-direction:row;
+        align-items:stretch;
+        justify-content:space-between;
+        height:100vh;
+        width:100vw;
+        padding:20px;
+        gap:20px}
+
+    .editor{flex:1;
+        max-width:420px;
+        padding:20px;
+        background:rgba(255,255,255,0.04);
+        border-radius:12px;
+        box-shadow:0 6px 18px rgba(3,6,15,0.6);
+        display:flex;flex-direction:column;
+        justify-content:flex-start}
+
+    h1{font-size:20px;
+        margin-bottom:10px;
+        text-align:center}
+
+    label{display:block;
+      font-size:13px;
+      margin-top:12px;
+      color:white}
+
+    input[type=text]{width:100%;
+      padding:12px;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,0.06);
+      background:rgba(255,255,255,0.02);
+      color:inherit;
+      font-size:16px;
+      margin-top:4px}
+
+    .btn{display:inline-block;
+      margin-top:14px;
+      padding:10px 14px;
+      border-radius:10px;
+      border:none;background:#1f6feb;
+      color:white;
+      font-weight:600;
+      cursor:pointer}
+
+    .btn.secondary{background:#2a2f44}
+
+    .btn-group{margin-top:20px;
+      display:flex;
+      gap:8px;
+      justify-content:center;
+      flex-wrap:wrap}
+
+    .siglas{display:flex;
+      gap:10px;
+      margin-top:6px;
+      flex-wrap:wrap}
+
+    .siglas label{font-size:14px;
+      display:flex;
+      align-items:center;
+      gap:5px}
+
+    .telao{flex:3;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      height:100%;}
+
+    .display-area{width:600px;
+      height:800px;
+      background:linear-gradient(180deg,#071026,#0b1226);
+      border-radius:14px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      padding:0px 0px;
+      box-shadow:0 10px 30px rgba(2,6,15,0.7)}
+
+    .card{width:100%;
+      height:100%;
+      border-radius:12px;
+      padding:30px;          
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      justify-content:flex-start;
+      gap:30px;
+      transition:all 240ms ease;
+      margin-top: 0px;
+      }
+
+    .batalhao{width:95%;
+      text-align:center;
+      font-size:55px;
+      font-weight:800; 
+      margin-top:-20px;}
+
+    .batalhao {
+        position: relative;
+    }
+
+    .tipo{width:100%;
+      text-align:left;
+      font-size:40px;
+      font-weight:700}
+      
+    .local{width:100%;
+      text-align:left;
+      font-size:30px;
+      font-weight:600}
+
+    .status-green{background:linear-gradient(180deg,#0f5b27,#1bb158);color:white}
+    .status-yellow{background:linear-gradient(180deg,#8a6b00,#ffd166);color:white}
+    .status-red{background:linear-gradient(180deg,#7b0d0d,#ff6b6b);color:white}
+
+    @keyframes pulse-soft{
+      0%{filter:brightness(1);}
+      50%{filter:brightness(1.06);}
+      100%{filter:brightness(1);}
+    }
+    @keyframes blink-slow{
+      0%{opacity:1}
+      50%{opacity:0.82}
+      100%{opacity:1}
+    }
+
+    @keyframes flash-reset {
+    0% { filter: brightness(1.6); }
+    100% { filter: brightness(1); }
+    }
+
+    .flash {
+    animation: flash-reset 0.5s ease-in-out;
+    }
+
+    .pulse{
+      animation:pulse-soft 1.6s ease-in-out infinite
+    }
+    
+    .blink{
+      animation:blink-slow 1s linear infinite
+    }
+
+    .assinatura{
+      margin-top:auto;
+      text-align:center;
+      font-size:12px;
+      color:rgba(255,255,255,0.6);
+      padding-top:12px;
+      border-top:1px solid rgba(255,255,255,0.08);
+    }
+
+    @media(max-width:900px){
+      .wrap{flex-direction:column}
+      .editor{max-width:100%;}
+      .batalhao{font-size:60px}
+      .tipo{font-size:36px}
+      .local{font-size:26px}
+    }
+  </style>
+
+</head>
+
+<body>
+    
+  <div class="wrap">
+    <div class="editor">
+      <h1>Bloco de Notas — Editor</h1>
+
+      <label for="numBatalhao">BATALHÃO</label>
+      <input id="numBatalhao" type="text" placeholder="Batalhão com dois digitos. Ex.: 00" maxlength="2" />
+      <div class="siglas" id="siglasBatalhao">
+        <label><input type="radio" name="sigla" value="BPM/M"> BPM/M</label>
+        <label><input type="radio" name="sigla" value="BAEP"> BAEP</label>
+        <label><input type="radio" name="sigla" value="BPTRAN"> BPTRAN</label>
+        <label><input type="radio" name="sigla" value="BPRV"> BPRV</label>
+      </div>
+
+      <label for="tipo">QRU</label>
+      <input id="tipo" type="text" placeholder="Ex.: Acompanhamento / Pinote / Averiguação" />
+
+      <label for="local">QTH</label>
+      <input id="local" type="text" placeholder="Ex.: Av. Paulista x R. Augusta" />
+
+      <div class="btn-group">
+        <button id="btnUpdate" class="btn">Atualizar</button>
+        <button id="reset" class="btn secondary">Limpar</button>
+        <button id="btnSetaEsq" class="btn secondary">← Esquerda</button>
+        <button id="btnSetaDir" class="btn secondary">Direita →</button>
+      </div>
+      <div class="assinatura">
+        Desenvolvido por <strong>SD PM HENRIQUE BARROS</strong> — VDM EQUIPE ECHO
+      </div>
+
+    </div>
+
+    <div class="telao">
+      <div class="display-area">
+        <div class="card" id="card">
+          <div class="batalhao" id="displayBatalhao">BATALHÃO</div>
+          <div class="tipo" id="displayTipo">TIPO DE OCORRÊNCIA</div>
+          <div class="local" id="displayLocal">LOCAL</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const numBatalhao = document.getElementById('numBatalhao');
+    const tipo = document.getElementById('tipo');
+    const localEl = document.getElementById('local');
+    const card = document.getElementById('card');
+    const dispB = document.getElementById('displayBatalhao');
+    const dispT = document.getElementById('displayTipo');
+    const dispL = document.getElementById('displayLocal');
+    const btnUpdate = document.getElementById('btnUpdate');
+    const btnClear = document.getElementById('btnClear');
+    const siglasBatalhao = document.querySelectorAll('#siglasBatalhao input[type="checkbox"]');
+
+    function getSelectedSiglas() {
+    const selected = document.querySelector('#siglasBatalhao input[type="radio"]:checked');
+    return selected ? selected.value : '';
+    }
+
+    function computeStatus(text){
+      if(!text) return 'green';
+      const t = text.toLowerCase();
+      if(t.includes('acompanh')) return 'red';
+      if(t.includes('pinote')) return 'red';
+      if(t.includes('baleado')) return 'red';
+      if(t.includes('tiro')) return 'red';
+      if(t.includes('alvejado')) return 'red';
+      if(t.includes('averig')) return 'yellow';
+      if(t.includes('andamento')) return 'yellow';
+      if(t.includes('encerr')) return 'green';
+      return ' ';
+    }
+
+    function applyVisual(status){
+      card.classList.remove('status-green','status-yellow','status-red','pulse','blink');
+      if(status === 'green') card.classList.add('status-green');
+      if(status === 'yellow') card.classList.add('status-yellow','pulse');
+      if(status === 'red') card.classList.add('status-red','blink');
+    }
+
+    function updateDisplay(){
+      const num = numBatalhao.value.trim() || '00';
+      const siglas = getSelectedSiglas() || ' OPM ';
+      const t = tipo.value.trim() || ' TESTE QRU ';
+      const l = localEl.value.trim() || ' TESTE QTH ';
+
+      dispB.textContent = (num + 'º ' + siglas).toUpperCase();
+      dispT.textContent = t.toUpperCase();
+      dispL.textContent = l.toUpperCase();
+
+      const status = computeStatus(t);
+      applyVisual(status);
+    }
+
+    btnUpdate.addEventListener('click', updateDisplay);
+    btnUpdate.addEventListener('click', () => {
+    updateDisplay();
+    salvarOcorrencia();
+    });
+
+    // Novo botão Resetar
+    const btnReset = document.getElementById('reset');
+
+    btnReset.addEventListener('click', () => {
+    // Limpa os campos de texto
+    document.querySelectorAll('input[type="text"]').forEach(inp => inp.value = '');
+  
+    // Desmarca todas as opções de sigla (se existirem)
+    document.querySelectorAll('#siglasBatalhao input[type="radio"]').forEach(radio => radio.checked = false);
+
+    // Atualiza o display
+    updateDisplay();
+
+    // Aplica o efeito de flash no card
+    card.classList.add('flash');
+    setTimeout(() => card.classList.remove('flash'), 500);
+    });
+
+    // Atualiza automaticamente ao digitar ou clicar nas opções
+    [numBatalhao, tipo, localEl].forEach(inp => inp.addEventListener('input', updateDisplay));
+    document.querySelectorAll('#siglasBatalhao input[type="radio"]').forEach(radio => {
+    radio.addEventListener('change', updateDisplay);
+    });
+
+    updateDisplay();
+
+  async function salvarOcorrencia() {
+  const b = batalhao.value.trim();
+  const t = tipo.value.trim();
+  const l = localEl.value.trim();
+
+  const { data, error } = await supabase
+    .from('ocorrencias')
+    .insert([{ batalhao: b, tipo: t, local: l }]);
+
+  if (error) {
+    console.error('Erro ao salvar:', error);
+  } else {
+    console.log('Ocorrência salva com sucesso:', data);
+  }
+}
+
+
+    const btnSetaEsq = document.getElementById('btnSetaEsq');
+    const btnSetaDir = document.getElementById('btnSetaDir');
+
+    function mostrarSeta(lado) {
+    let texto = dispB.textContent.replace(/←|→/g, '').trim(); // remove setas antigas
+    if (lado === 'esq') {
+      dispB.textContent = `← ${texto}`;
+    } else if (lado === 'dir') {
+      dispB.textContent = `${texto} →`;
+    }
+    }
+
+    // Eventos dos botões
+    btnSetaEsq.addEventListener('click', () => mostrarSeta('esq'));
+    btnSetaDir.addEventListener('click', () => mostrarSeta('dir'));
+
+
+  </script>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://gmzmgwpursikdixqhcoa.supabase.co'; // Substitua pelo seu Project URL
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdtem1nd3B1cnNpa2RpeHFoY29hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEyNjYwOTQsImV4cCI6MjA3Njg0MjA5NH0.STE2QDakuvt2OerbTykdvErdG5uU8vfIlMwP-Wo2z24'; // Substitua pela sua anon public key
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // 🔴 Sincronização em tempo real
+supabase
+  .channel('ocorrencias')
+  .on(
+    'postgres_changes',
+    { event: '*', schema: 'public', table: 'ocorrencias' },
+    payload => {
+      console.log('Mudança detectada:', payload);
+      // Aqui você pode atualizar automaticamente a tela com os novos dados
+      const nova = payload.new;
+      if (nova) {
+        dispB.textContent = nova.batalhao.toUpperCase();
+        dispT.textContent = nova.tipo.toUpperCase();
+        dispL.textContent = nova.local.toUpperCase();
+        const status = computeStatus(nova.tipo);
+        applyVisual(status);
+      }
+    }
+  )
+  .subscribe();
+
+</script>
+
+</body>
+</html>
