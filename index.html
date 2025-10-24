@@ -305,41 +305,44 @@
     const btnReset = document.getElementById('reset');
 
     btnReset.addEventListener('click', async () => {
-  // Limpa campos
+  // 🔹 1. Limpa os campos no painel
   document.querySelectorAll('input[type="text"]').forEach(inp => inp.value = '');
   document.querySelectorAll('#siglasBatalhao input[type="radio"]').forEach(radio => radio.checked = false);
 
-  // Define os textos padrão
+  // 🔹 2. Atualiza a interface localmente
   dispB.textContent = 'BATALHÃO';
   dispT.textContent = 'TIPO DE OCORRÊNCIA';
   dispL.textContent = 'LOCAL';
-
-  // Remove classes de cor e animação
-  card.classList.remove('status-green','status-yellow','status-red','pulse','blink');
-  
-  // Aplica um estilo neutro (pode deixar assim ou mudar a cor base)
+  card.classList.remove('status-green', 'status-yellow', 'status-red', 'pulse', 'blink');
   card.style.background = 'linear-gradient(180deg,#071026,#0b1226)';
-
-  // Efeito visual de flash
   card.classList.add('flash');
   setTimeout(() => card.classList.remove('flash'), 500);
 
-  // Envia atualização "padrão" para o banco
-  const { error } = await supabase
-    .from('ocorrencias')
-    .insert([{
-      batalhao: 'BATALHÃO',
-      tipo: 'TIPO DE OCORRÊNCIA',
-      local: 'LOCAL'
-    }]);
+  try {
+    // 🔹 3. Apaga todos os registros da tabela
+    const { error: deleteError } = await supabase
+      .from('ocorrencias')
+      .delete()
+      .neq('id', 0); // apaga todos os registros (exceto se quiser preservar algum específico)
 
-  if (error) {
-    console.error('Erro ao limpar painel:', error);
-  } else {
-    console.log('Painel redefinido para o padrão em todos os dispositivos');
+    if (deleteError) throw deleteError;
+
+    // 🔹 4. Insere o registro padrão
+    const { error: insertError } = await supabase
+      .from('ocorrencias')
+      .insert([{
+        batalhao: 'BATALHÃO',
+        tipo: 'TIPO DE OCORRÊNCIA',
+        local: 'LOCAL'
+      }]);
+
+    if (insertError) throw insertError;
+
+    console.log('🧹 Painel limpo e reiniciado com sucesso!');
+  } catch (err) {
+    console.error('Erro ao limpar o banco:', err);
   }
 });
-
 
 
     // Atualiza automaticamente ao digitar ou clicar nas opções
