@@ -203,7 +203,7 @@
       <input id="local" type="text" placeholder="Ex.: Av. Paulista x R. Augusta" />
 
       <div class="btn-group">
-        <button id="btnUpdate" class="btn">Atualizar</button>
+        <button id="btnUpdate" class="btn">Atualizar Manualmente</button>
         <button id="reset" class="btn secondary">Limpar</button>
         <button id="btnSetaEsq" class="btn secondary">← Esquerda</button>
         <button id="btnSetaDir" class="btn secondary">Direita →</button>
@@ -295,7 +295,7 @@
       applyVisual(status);
     }
 
-    // btnUpdate.addEventListener('click', updateDisplay);
+    btnUpdate.addEventListener('click', updateDisplay);
     btnUpdate.addEventListener('click', async () => {
   updateDisplay();
   await salvarOcorrencia();
@@ -349,12 +349,25 @@
   }
 });
 
+// Função com atraso (debounce) para não salvar a cada tecla
+let saveTimeout;
 
-    // Atualiza automaticamente ao digitar ou clicar nas opções
-    [numBatalhao, tipo, localEl].forEach(inp => inp.addEventListener('input', updateDisplay));
-    document.querySelectorAll('#siglasBatalhao input[type="radio"]').forEach(radio => {
-    radio.addEventListener('change', updateDisplay);
-    });
+function agendarSalvamento() {
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(async () => {
+    updateDisplay();
+    await salvarOcorrencia();
+  }, 1000); // salva 1s depois da última digitação
+}
+
+// Atualiza e salva automaticamente enquanto digita
+[numBatalhao, tipo, localEl].forEach(inp => {
+  inp.addEventListener('input', agendarSalvamento);
+});
+
+document.querySelectorAll('#siglasBatalhao input[type="radio"]').forEach(radio => {
+  radio.addEventListener('change', agendarSalvamento);
+});
 
     updateDisplay();
 
@@ -382,14 +395,36 @@
     const btnSetaEsq = document.getElementById('btnSetaEsq');
     const btnSetaDir = document.getElementById('btnSetaDir');
 
-    function mostrarSeta(lado) {
+  async function mostrarSeta(lado) {
     let texto = dispB.textContent.replace(/←|→/g, '').trim(); // remove setas antigas
+    let novoTexto = texto;
+
     if (lado === 'esq') {
-      dispB.textContent = `← ${texto}`;
+    novoTexto = `← ${texto}`;
     } else if (lado === 'dir') {
-      dispB.textContent = `${texto} →`;
+    novoTexto = `${texto} →`;
+    }
+
+    // Atualiza visual localmente
+    dispB.textContent = novoTexto;
+
+    // Atualiza no Supabase (para sincronizar com todos)
+    try {
+    const { error } = await supabase
+      .from('ocorrencias')
+      .update({ batalhao: novoTexto })
+      .eq('id', 1);
+
+    if (error) {
+      console.error('Erro ao salvar seta:', error);
+    } else {
+      console.log('✅ Seta atualizada na nuvem com sucesso!');
+    }
+    } catch (err) {
+    console.error('Erro geral ao atualizar seta:', err);
     }
     }
+
 
     // Eventos dos botões
     btnSetaEsq.addEventListener('click', () => mostrarSeta('esq'));
@@ -406,21 +441,28 @@
 
   // 🔴 Sincronização em tempo real
   supabase
-  .channel('publicocorrencias')  // nome do canal (pode ser qualquer string)
+  .channel('publicocorrencias')
   .on('postgres_changes', 
-      { event: '*', schema: 'public', table: 'ocorrencias' },
-      payload => {
-        const nova = payload.new;
-        if (nova) {
-          dispB.textContent = nova.batalhao.toUpperCase();
-          dispT.textContent = nova.tipo.toUpperCase();
-          dispL.textContent = nova.local.toUpperCase();
-          const status = computeStatus(nova.tipo);
-          applyVisual(status);
-        }
-      }
+    { event: '*', schema: 'public', table: 'ocorrencias' },
+    payload => {
+      const nova = payload.new;
+      if (!nova) return;
+
+      // 🔒 Bloqueia interferência de quem está digitando localmente
+      if (document.activeElement.tagName === 'INPUT') return;
+
+      // Atualiza somente os visores
+      dispB.textContent = nova.batalhao.toUpperCase();
+      dispT.textContent = nova.tipo.toUpperCase();
+      dispL.textContent = nova.local.toUpperCase();
+
+      // Força o cálculo da cor baseado no dado da nuvem
+      const status = computeStatus(nova.tipo);
+      applyVisual(status);
+    }
   )
   .subscribe();
+
 
   carregarUltimaOcorrencia();
 
