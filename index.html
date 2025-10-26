@@ -382,7 +382,7 @@
   document.querySelectorAll('input[type="text"]').forEach(inp => inp.value = '');
   document.querySelectorAll('#siglasBatalhao input[type="radio"]').forEach(radio => radio.checked = false);
   localEl.value = '';
-  
+
   // 🔹 2. Atualiza a interface localmente
   dispB.textContent = 'BATALHÃO';
   dispT.textContent = 'TIPO DE OCORRÊNCIA';
@@ -532,7 +532,8 @@ supabase
       applyVisual(status);
     }
   )
-  .subscribe();
+  .subscribe(status => console.log('📡 Canal realtime status:', status));
+
 
 
 
