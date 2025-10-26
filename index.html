@@ -227,15 +227,52 @@
   </div>
 
   <script>
-  const senha = "Echo2025@"; // 🔑 defina sua senha aqui
-  const entrada = prompt("Digite a senha para acessar o painel:");
+  const senhaCorreta = "Echo2025@"; // 🔑 defina sua senha aqui
 
-  if (entrada !== senha) {
-    alert("Senha incorreta! Acesso negado.");
-    document.body.innerHTML = "<h2 style='color:white; text-align:center; margin-top:40vh;'>Acesso negado 🚫</h2>";
-    throw new Error("Acesso negado");
-  }
+  // Cria uma caixinha básica de senha na tela
+  const div = document.createElement("div");
+  div.innerHTML = `
+    <div style="
+      position: fixed;
+      inset: 0;
+      background: #0b1020;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 10px;
+      color: white;
+      font-family: Arial;
+    ">
+      <h2>🔒 Acesso Restrito</h2>
+      <input id="senhaInput" type="password" placeholder="Digite a senha" 
+        style="padding:10px 14px; border-radius:8px; border:none; outline:none; font-size:16px;">
+      <button id="btnEntrar" style="margin-top:8px; padding:10px 14px; border:none; border-radius:8px; background:#1f6feb; color:white; cursor:pointer;">Entrar</button>
+      <p id="msgErro" style="color:red; display:none;">Senha incorreta!</p>
+    </div>
+  `;
+  document.body.appendChild(div);
+
+  const senhaInput = div.querySelector("#senhaInput");
+  const msgErro = div.querySelector("#msgErro");
+
+  div.querySelector("#btnEntrar").addEventListener("click", () => {
+    if (senhaInput.value === senhaCorreta) {
+      div.remove(); // remove a tela de senha
+    } else {
+      msgErro.style.display = "block";
+      senhaInput.value = "";
+      senhaInput.focus();
+    }
+  });
+
+  senhaInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      div.querySelector("#btnEntrar").click();
+    }
+  });
 </script>
+
 
 
   <script>
