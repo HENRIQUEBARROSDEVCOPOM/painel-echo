@@ -227,6 +227,18 @@
   </div>
 
   <script>
+  const senha = "Echo2025@"; // 🔑 defina sua senha aqui
+  const entrada = prompt("Digite a senha para acessar o painel:");
+
+  if (entrada !== senha) {
+    alert("Senha incorreta! Acesso negado.");
+    document.body.innerHTML = "<h2 style='color:white; text-align:center; margin-top:40vh;'>Acesso negado 🚫</h2>";
+    throw new Error("Acesso negado");
+  }
+</script>
+
+
+  <script>
     const numBatalhao = document.getElementById('numBatalhao');
     const tipo = document.getElementById('tipo');
     const localEl = document.getElementById('local');
