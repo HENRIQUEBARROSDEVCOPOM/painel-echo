@@ -129,7 +129,8 @@
       font-size:30px;
       font-weight:600}
 
-    .status-green{background:linear-gradient(180deg,#0f5b27,#1bb158);color:white}
+    /*.status-green{background:linear-gradient(180deg,#0f5b27,#1bb158);color:white} */
+    .status-green{background-color: inherit;}
     .status-yellow{background:linear-gradient(180deg,#8a6b00,#ffd166);color:white}
     .status-red{background:linear-gradient(180deg,#7b0d0d,#ff6b6b);color:white}
 
@@ -440,28 +441,31 @@ document.querySelectorAll('#siglasBatalhao input[type="radio"]').forEach(radio =
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   // 🔴 Sincronização em tempo real
-  supabase
+  // 🔁 Escuta mudanças em tempo real no Supabase
+supabase
   .channel('publicocorrencias')
-  .on('postgres_changes', 
+  .on(
+    'postgres_changes',
     { event: '*', schema: 'public', table: 'ocorrencias' },
-    payload => {
+    async payload => {
       const nova = payload.new;
       if (!nova) return;
 
-      // 🔒 Bloqueia interferência de quem está digitando localmente
-      if (document.activeElement.tagName === 'INPUT') return;
+      // Atualiza sempre o DOM com o que veio do Supabase
+      dispB.textContent = nova.batalhao?.toUpperCase() || "";
+      dispT.textContent = nova.tipo?.toUpperCase() || "";
+      dispL.textContent = nova.local?.toUpperCase() || "";
 
-      // Atualiza somente os visores
-      dispB.textContent = nova.batalhao.toUpperCase();
-      dispT.textContent = nova.tipo.toUpperCase();
-      dispL.textContent = nova.local.toUpperCase();
+      // Aguarda DOM atualizar antes de aplicar a cor
+      await new Promise(r => setTimeout(r, 50));
 
-      // Força o cálculo da cor baseado no dado da nuvem
-      const status = computeStatus(nova.tipo);
+      // 🔹 Recalcula e aplica cor sempre que houver atualização
+      const status = computeStatus(nova.tipo || "");
       applyVisual(status);
     }
   )
   .subscribe();
+
 
 
   carregarUltimaOcorrencia();
